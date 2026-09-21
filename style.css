@@ -1,0 +1,96 @@
+/* Custom Styling for Conway's Game of Life */
+
+:root {
+    /* Emerald Neon default theme */
+    --color-cell-alive: #22c55e;
+    --color-cell-glow: rgba(34, 197, 94, 0.4);
+    --color-cell-trail: rgba(16, 185, 129, 0.15);
+    --color-grid: rgba(255, 255, 255, 0.03);
+    --color-bg: #030712;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: #f3f4f6;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Background Radial Grid Pattern */
+.bg-radial-grid {
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%),
+        radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
+}
+
+/* Canvas Canvas Shadow & Border */
+#life-canvas {
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.1);
+    background-color: rgba(3, 7, 18, 0.85);
+    touch-action: none;
+}
+
+/* Range Input Custom Styling */
+input[type=range] {
+    -webkit-appearance: none;
+    background: #1e293b;
+    border-radius: 8px;
+    height: 6px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: #22c55e;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    background: #4ade80;
+}
+
+input[type=range]::-moz-range-thumb {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: #22c55e;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+
+/* Glassmorphism Panel Blur */
+.glass-panel {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Keyboard badge */
+kbd {
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}

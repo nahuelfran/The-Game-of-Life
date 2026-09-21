@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de la Vida de Conway - Conway's Game of Life</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            900: '#14532d',
+                            glow: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts: Inter y JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-full overflow-hidden flex flex-col select-none">
+
+    <!-- Header / Navbar -->
+    <header class="w-full px-6 py-4 flex items-center justify-between border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h1 class="font-semibold text-base tracking-tight text-slate-100 flex items-center gap-2">
+                    Juego de la Vida
+                    <span class="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">Conway</span>
+                </h1>
+                <p class="text-xs text-slate-400">Autómata celular interactivo</p>
+            </div>
+        </div>
+
+        <!-- Estadísticas en tiempo real (Header Desktop) -->
+        <div class="hidden md:flex items-center gap-6 text-xs font-mono bg-slate-900/80 border border-slate-800/80 px-4 py-2 rounded-xl">
+            <div class="flex items-center gap-2">
+                <span class="text-slate-400">Generación:</span>
+                <span id="gen-counter" class="text-emerald-400 font-semibold min-w-[3ch]">0</span>
+            </div>
+            <div class="h-3 w-px bg-slate-800"></div>
+            <div class="flex items-center gap-2">
+                <span class="text-slate-400">Células Vivas:</span>
+                <span id="alive-counter" class="text-emerald-400 font-semibold min-w-[3ch]">0</span>
+            </div>
+            <div class="h-3 w-px bg-slate-800"></div>
+            <div class="flex items-center gap-2">
+                <span class="text-slate-400">FPS:</span>
+                <span id="fps-counter" class="text-slate-300 font-semibold min-w-[2ch]">0</span>
+            </div>
+        </div>
+
+        <!-- Acciones secundarias & Atajos -->
+        <div class="flex items-center gap-2">
+            <button id="btn-theme" title="Cambiar tema de color" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition">
+                <i data-lucide="palette" class="w-4 h-4"></i>
+            </button>
+            <button id="btn-info" title="Instrucciones y atajos" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition">
+                <i data-lucide="help-circle" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Área principal de simulación -->
+    <main class="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center bg-radial-grid">
+        
+        <!-- Canvas principal -->
+        <canvas id="life-canvas" class="cursor-crosshair transition-shadow duration-300"></canvas>
+
+        <!-- Stats Móvil (Overlay superior) -->
+        <div class="md:hidden absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-4 text-xs font-mono bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+            <div>Gen: <span id="gen-counter-mobile" class="text-emerald-400 font-semibold">0</span></div>
+            <div class="h-3 w-px bg-slate-800"></div>
+            <div>Vivas: <span id="alive-counter-mobile" class="text-emerald-400 font-semibold">0</span></div>
+        </div>
+
+        <!-- Toolbar Flotante Inferior -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full max-w-fit px-4 z-10">
+            
+            <!-- Panel de opciones desplegable de patrones/ajustes -->
+            <div id="presets-panel" class="hidden w-full bg-slate-900/90 border border-slate-800/90 p-4 rounded-2xl backdrop-blur-xl shadow-2xl transition-all duration-200">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <span class="flex items-center gap-1.5"><i data-lucide="shapes" class="w-3.5 h-3.5"></i> Patrones Famosos</span>
+                    <button id="close-presets" class="text-slate-500 hover:text-slate-300"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <button data-pattern="glider" class="preset-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition text-left">
+                        <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Planador (Glider)</span>
+                    </button>
+                    <button data-pattern="gosperGun" class="preset-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition text-left">
+                        <i data-lucide="crosshair" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Cañón Gosper</span>
+                    </button>
+                    <button data-pattern="pulsar" class="preset-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition text-left">
+                        <i data-lucide="sun" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Púlsar (Pulsar)</span>
+                    </button>
+                    <button data-pattern="lwss" class="preset-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition text-left">
+                        <i data-lucide="rocket" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Nave Ligera (LWSS)</span>
+                    </button>
+                    <button data-pattern="pentadecathlon" class="preset-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition text-left">
+                        <i data-lucide="repeat" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Pentadecatlón</span>
+                    </button>
+                    <button data-pattern="acorn" class="preset-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition text-left">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Bellota (Acorn)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel de Controles Principal -->
+            <div class="flex items-center gap-2 sm:gap-3 p-2 rounded-2xl bg-slate-900/90 border border-slate-800/90 backdrop-blur-xl shadow-2xl">
+                
+                <!-- Botón Play/Pausa -->
+                <button id="btn-play" class="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-medium transition shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] active:scale-95">
+                    <i data-lucide="play" class="w-6 h-6 fill-current"></i>
+                </button>
+
+                <!-- Botón Paso a Paso -->
+                <button id="btn-step" title="Avanzar 1 generación" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-200 hover:text-white transition active:scale-95">
+                    <i data-lucide="skip-forward" class="w-5 h-5"></i>
+                </button>
+
+                <div class="h-6 w-px bg-slate-800 my-auto mx-1"></div>
+
+                <!-- Botón Aleatorio -->
+                <button id="btn-random" title="Generar distribución aleatoria" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition active:scale-95">
+                    <i data-lucide="dices" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Botón Limpiar -->
+                <button id="btn-clear" title="Limpiar grilla" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-200 hover:text-rose-400 transition active:scale-95">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Botón Patrones Predefinidos -->
+                <button id="btn-presets" title="Patrones predefinidos" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-200 hover:text-emerald-400 transition active:scale-95">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                </button>
+
+                <div class="h-6 w-px bg-slate-800 my-auto mx-1"></div>
+
+                <!-- Control de Velocidad (Slider con Tooltip) -->
+                <div class="flex items-center gap-2 px-2">
+                    <i data-lucide="gauge" class="w-4 h-4 text-slate-400"></i>
+                    <input id="slider-speed" type="range" min="1" max="60" value="25" class="w-20 sm:w-28 accent-emerald-500 cursor-pointer bg-slate-800 h-1.5 rounded-lg appearance-none">
+                    <span id="speed-label" class="text-xs font-mono text-slate-400 w-8">25<span class="text-[10px]">fps</span></span>
+                </div>
+
+                <div class="hidden lg:flex items-center gap-2 px-2 border-l border-slate-800">
+                    <i data-lucide="zoom-in" class="w-4 h-4 text-slate-400"></i>
+                    <input id="slider-size" type="range" min="4" max="24" value="10" class="w-20 accent-emerald-500 cursor-pointer bg-slate-800 h-1.5 rounded-lg appearance-none">
+                    <span id="size-label" class="text-xs font-mono text-slate-400 w-8">10<span class="text-[10px]">px</span></span>
+                </div>
+
+                <!-- Toggle para Opciones Adicionales (Líneas de Grilla, Estela) -->
+                <div class="flex items-center gap-1 border-l border-slate-800 pl-2">
+                    <button id="btn-toggle-grid" title="Alternar visibilidad de la cuadrícula" class="p-2.5 rounded-lg text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 transition">
+                        <i data-lucide="grid" class="w-4 h-4"></i>
+                    </button>
+                    <button id="btn-toggle-glow" title="Alternar efecto resplandor/estela" class="p-2.5 rounded-lg text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 transition">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Ayuda / Información -->
+    <div id="modal-info" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="info" class="w-5 h-5 text-emerald-400"></i>
+                    ¿Qué es el Juego de la Vida?
+                </h3>
+                <button id="close-info" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <p class="text-sm text-slate-300 leading-relaxed">
+                Diseñado por el matemático John Conway en 1970, es un autómata celular de cero jugadores. Su evolución está determinada por su estado inicial:
+            </p>
+
+            <div class="space-y-2 text-xs text-slate-300 bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/80">
+                <div class="flex items-start gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
+                    <span><strong>Supervivencia:</strong> Una célula viva con 2 o 3 vecinas vivas sigue viva.</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="w-2 h-2 rounded-full bg-rose-400 mt-1.5 shrink-0"></span>
+                    <span><strong>Muerte:</strong> Una célula viva con menos de 2 vecinas muere (despoblación) o con más de 3 muere (sobrepoblación).</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 mt-1.5 shrink-0"></span>
+                    <span><strong>Nacimiento:</strong> Una célula muerta con exactamente 3 vecinas vivas cobra vida (reproducción).</span>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Atajos de Teclado</h4>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex items-center justify-between bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-slate-400">Iniciar / Pausa</span>
+                        <kbd class="font-mono bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-[10px] text-slate-300">Espacio</kbd>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-slate-400">Avanzar paso</span>
+                        <kbd class="font-mono bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-[10px] text-slate-300">Flecha Der / N</kbd>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-slate-400">Aleatorio</span>
+                        <kbd class="font-mono bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-[10px] text-slate-300">R</kbd>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-slate-400">Limpiar</span>
+                        <kbd class="font-mono bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-[10px] text-slate-300">C</kbd>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal -->
+    <script src="script.js"></script>
+</body>
+</html>
