@@ -1,6 +1,10 @@
 /**
  * Juego de la Vida de Conway - Conway's Game of Life
  * Implementación optimizada en Canvas HTML5 con JS Moderno
+ *
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 Francis
+ * Licencia libre: usa, modifica y distribuye este código como quieras.
  */
 
 class GameOfLife {

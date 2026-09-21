@@ -1,5 +1,9 @@
 # 🧬 Juego de la Vida de Conway
 
+[![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-22c55e.svg)](LICENSE)
+[![Dependencias: ninguna](https://img.shields.io/badge/dependencias-ninguna-06b6d4.svg)](#-cómo-ejecutarlo)
+[![Canvas HTML5](https://img.shields.io/badge/render-HTML5%20Canvas-a855f7.svg)](#️-detalles-técnicos)
+
 > *"Cuatro reglas. Ninguna excepción. Y sin embargo, de ahí brota un universo."*
 
 Una implementación interactiva y minimalista del **Juego de la Vida de John Horton Conway** (1970), construida con **HTML5 Canvas**, **Tailwind CSS** y **JavaScript moderno**.
@@ -19,6 +23,7 @@ No es un juego que se juega. Es un juego que te observa jugar.
 7. [Cómo ejecutarlo](#-cómo-ejecutarlo)
 8. [Detalles técnicos](#-detalles-técnicos)
 9. [Nota filosófica: el jardín de cuatro reglas](#-nota-filosófica-el-jardín-de-cuatro-reglas)
+10. [Licencia](#-licencia)
 
 ---
 
@@ -148,7 +153,9 @@ Tailwind, las fuentes y los iconos se cargan por CDN, así que la primera vez ne
 juego/
 ├── index.html   # Estructura, controles y paneles (Tailwind + Lucide)
 ├── style.css    # Tema oscuro, glassmorphism, sliders personalizados
-└── script.js    # Clase GameOfLife: simulación, render y eventos
+├── script.js    # Clase GameOfLife: simulación, render y eventos
+├── README.md    # Este documento
+└── LICENSE      # Licencia MIT — úsalo como quieras
 ```
 
 ---
@@ -192,6 +199,23 @@ El Juego de la Vida no es una metáfora de la vida. Es, más bien, un recordator
 Y cuando la población se estabiliza y todo se queda quieto, no es un fracaso. Es el universo diciendo: *encontré mi forma.* Después puedes hacer lo único que un dios pequeño puede hacer en este juego:
 
 **Limpiar la cuadrícula y volver a empezar.**
+
+---
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la **Licencia MIT** — ver el archivo [LICENSE](LICENSE).
+
+En cristiano: **haz lo que quieras con este código.**
+
+- ✅ Usarlo, copiarlo, modificarlo, romperlo
+- ✅ Publicarlo, venderlo, empaquetarlo dentro de algo más grande
+- ✅ Usarlo en proyectos personales, comerciales, académicos o absurdos
+- ✅ No pedir permiso a nadie, nunca
+
+La única condición es una línea: **conserva el aviso de copyright y la licencia** en las copias sustanciales del código. Nada más.
+
+Y seamos honestos con la letra pequeña: **el software se entrega "tal cual"**, sin garantías de ningún tipo. Si tu colonia se extingue en la generación 40, es tu problema — y también es la única forma en que este juego sabe terminar.
 
 ---
 
