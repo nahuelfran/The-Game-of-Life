@@ -7,7 +7,9 @@
 > *"Cuatro reglas. Ninguna excepción. Y sin embargo, de ahí brota un universo."*
 
 Una implementación interactiva y minimalista del **Juego de la Vida de John Horton Conway** (1970), construida con **HTML5 Canvas**, **Tailwind CSS** y **JavaScript moderno**.
+
 👉 **[¡Pruébalo el juego ckick aquí!](https://nahuelfran.github.io/The-Game-of-Life/)**
+
 No es un juego que se juega. Es un juego que te observa jugar.
 
 ---
